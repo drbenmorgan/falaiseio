@@ -1,0 +1,70 @@
+---
+# ? Difference between components and datatypes?
+# From FCC-EDM: components can be stored in datatypes,
+# but not in collections
+#
+# - Want to get to basic "event loop" example, in pseudocode:
+#
+# source input(<inparams>)
+# sink output(<outparams>)
+#
+# for event in input:
+#   do_something_with_event(event)
+#   output(event)
+#
+# "do_something_with_event" might add/remove data from
+# event - in current model, event is basically a dictionary
+# of string -> datatype.
+#
+# Can users add new custom datatypes (/extend existing datamodel)?
+#
+# - What about schema evolution?
+#
+
+datatypes:
+  RawTriggerInfo:
+    Description: "SuperNEMO raw trigger info"
+    Author: "Ben Morgan"
+    Members:
+      - unsigned triggerNumber // Trigger number (32bit)
+      # Remainder are arrays of std::bitsets... Don't know how to use these yet...
+
+  RawGeigerHit:
+    Description: "SuperNEMO raw geiger tracker hit"
+    Author: "Ben Morgan"
+    Members:
+      - int triggerID       // The Trigger ID (16bit)
+      - int channelAddress  // Channel address (32bit)
+      - int dataDescription // Description of available data (16bit)
+      # These need better names...
+      - long anodeTime_0    // Anode differential signal time t0 (64bit, relative to t0/trigger?)
+      - int anodeTime_1     // Anode differential signal time t1 (16bit)
+      - int anodeTime_2     // Anode differential signal time t2 (16bit)
+      - int anodeTime_3     // Anode differential signal time t3 (16bit)
+      - int anodeTime_4     // Anode differential signal time t4 (16bit)
+      - int cathodeBottomTime   // Cathode signal time t5 (16bit)
+      - int cathodeTopTime      // Cathode signal time t6 (16bit, only in 3-wire mode which is the default)
+
+  RawCalorimeterHit:
+    Description: "SuperNEMO raw calorimeter hit"
+    Author: "Ben Morgan"
+    Members:
+      - int triggerID              // Trigger ID (16bit)
+      - int channelAddress        // Encoded address of the optical module (16bit)
+      - int dataDescription       // Description of the available data (16bit)
+      # These need better names...
+      - long timeInfo             // Time informations (64bit)
+      - short waveformFirstSample // Index of the first sample (16bit)
+      - short waveformLastSample  // Index of the last sample (16bit)
+    VectorMembers:
+      - short waveform // Waveform (16bit, max 1024 entries, so could be array)
+
+      # These are less clear, not seemingly derived, but... 
+      #uint16_t _aux_baseline_;          //!< Pedestal value from the baseline before the peak region
+      #uint16_t _aux_peak_charge_;       //!< Peak integrated charge
+      #uint16_t _aux_peak_amplitude_;    //!< Peak amplitude
+      #uint16_t _aux_peak_time_max_amplitude_; //!< Peak time at max amplitude
+      #uint16_t _aux_underflow_tot_;     //!< Underflow signal time-over-threshold
+      #uint16_t _aux_time_cfd_interp_;   //!< CFD interpolation
+      
+

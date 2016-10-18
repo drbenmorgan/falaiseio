@@ -1,0 +1,4 @@
+#ifndef falaiseioVersion_h
+#define falaiseioVersion_h
+#define falaiseio_VERSION @falaiseio_VERSION@
+#endif
