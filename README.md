@@ -3,6 +3,39 @@
 Experimental [PODIO](https:://github.com/hegner/podio) datamodel and I/O for
 SuperNEMO.
 
+Evaluation program/use cases:
+
+1. Construct, use and understand basic event loop in PODIO-land
+2. Generate PODIO data model for SuperNEMO `RawData` (trigger info, geiger hits, calorimeter hits)
+  1. Understand requirements/limitations on data model components/datatypes
+  2. what about Metadata (i.e. run-level) data?
+3. Use `RawData` model in event loop
+  1. read/create data
+  2. do something with it (e.g. plots)
+4. Generate data model for `CalibratedData` (trigger info, geiger hits, calorimeter hits)
+  1. References/links between raw/calibrated hits (e.g. "this calibrated hit created from this raw hit")
+5. Use `RawData` and `CalibratedData` in a "pipeline/event loop", i.e. in terms of current processing model:
+   
+   ```python
+   source dataSource(ofRawEvents)
+   sink output(forOtherUse)
+   
+   for event in dataSource:
+     # "event" just holds "RawData"
+     
+     calibrate(event)
+     # "event" now holds "RawData" and associated "CalibratedData"
+     
+     # ... possible further steps of processing with additional "banks" of data added (e.g. clusters of hits)
+     
+     output(event)
+     # ... persist data to a destination
+     
+   ```
+   
+   This is thinking in terms of an ``Event`` object holding data, need to learn how PODIO structures this
+   and what, if any, additional layers are needed for structuring/pipelining etc.
+
 ## Building the project
 
     mkdir build
