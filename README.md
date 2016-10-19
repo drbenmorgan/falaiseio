@@ -6,6 +6,7 @@ SuperNEMO.
 Evaluation program/use cases:
 
 1. Construct, use and understand basic event loop in PODIO-land
+  1. Including how to use with MT, for example in a Producer-Consumer system (only Event-level parallelism)
 2. Generate PODIO data model for SuperNEMO `RawData` (trigger info, geiger hits, calorimeter hits)
   1. Understand requirements/limitations on data model components/datatypes
   2. what about Metadata (i.e. run-level) data?
