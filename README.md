@@ -18,19 +18,65 @@ Evaluation program/use cases:
 5. Use `RawData` and `CalibratedData` in a "pipeline/event loop", i.e. in terms of current processing model:
    
    ```python
-   source dataSource(ofRawEvents)
-   sink output(forOtherUse)
+   # Could be file, but other sources possible
+   InputSource dataSource("run01.ext")
    
-   for event in dataSource:
-     # "event" just holds "RawData"
+   # Could be file (most likely), but sinks possible
+   OutputSink dataSink("run01_processed.ext")
+   
+   # Metadata is "global to run"
+   Metadata runData = dataSource.getMetadata()
+   
+   # Metadata is used to construct processing pipeline
+   # e.g. get calibration/geometry parameters for the run being processed
+   DataPipeline processPipeline = DataPipeline(runData)
+   
+   for event in dataSource.getEvents():
+     # "event" just holds "RawData" in the main reconstruction processing
+     # at this point
      
-     calibrate(event)
-     # "event" now holds "RawData" and associated "CalibratedData"
+     # each event may be processed in a separate thread/task by the pipeline
+     future = processPipeline(event) {
+       
+       calibrate(event) {
+         RawData r = event.get<RawData>("RawData");
+         CalibratedData c = event.create<CalibratedData>("CalibratedData")
+         for rawHit in r.hits():
+           calibratedHit = calibrate(rawHit)
+           c.push_back(calibratedHit)
+       }
+       # "event" now holds "RawData" and associated "CalibratedData"
+       
+       reconstruct(event) {
+         CalibratedData c = event.get<CalibratedData>("CalibratedData");
+         GeigerCluster g = event.create<GeigerCluster>("GeigerCluster");
+         ... think about this a bit more ...
+        }
+            
+       # ... possible further steps of processing with additional "banks" of data added (e.g. clusters of hits)
+       # User customization - an algorithm which takes existing data
+       # and pushes a self-defined Podio data type from their yaml
+       # file, e.g.
+       #
+       # datatypes:
+       #   MyData:
+       #    Description: "A custom type"
+       #    Author : "A.N. Other"        
+       #    Members:
+       #     - float someDeriveQuantity // calculated from event
+       #
+       # The algorithm and generated code may be compiled into
+       # a shared library loaded at runtime (plugin).
+       user(event) {
+         UserData t = event.create<UserData>("mydata")
+         ... calculations ...
+       }
+       
+       # Mark event event future as ready
+     }
      
-     # ... possible further steps of processing with additional "banks" of data added (e.g. clusters of hits)
-     
-     output(event)
-     # ... persist data to a destination
+     dataSink.store(future) {
+     # ... persist data to a destination once data is ready
      
    ```
    
